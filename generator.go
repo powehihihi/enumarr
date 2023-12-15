@@ -55,55 +55,70 @@ func (e *enumarr) parse(fileName string) error {
 	}
 
 	ast.Inspect(f, func(node ast.Node) bool {
-		decl, ok := node.(*ast.GenDecl)
-		if !ok || decl.Tok != token.CONST {
-			// we only care about const declarations (-> return) on the package level
-			return true
-		}
-
-		curType := ""
-
-		for _, spec := range decl.Specs {
-			vspec, ok := spec.(*ast.ValueSpec)
+		switch node.(type) {
+		case *ast.File:
+			file, ok := node.(*ast.File)
 			if !ok {
-				// const is always ValueSpec
-				continue
+				// unreachable
+				return false
+			}
+			e.Parsed.Pkg = file.Name.Name
+			return true
+		case *ast.GenDecl:
+			decl, ok := node.(*ast.GenDecl)
+			if !ok || decl.Tok != token.CONST {
+				// we only care about const declarations (-> return) on the package level
+				return true
 			}
 
-			// find out type of constant
-			// (or multiple constants: `const a, b Letter = "a", "b"`)
+			curType := ""
 
-			if vspec.Type == nil && curType == "" {
-				// no type - no interest
-				continue
-			}
-
-			if vspec.Type != nil {
-				ident, ok := vspec.Type.(*ast.Ident)
+			for _, spec := range decl.Specs {
+				vspec, ok := spec.(*ast.ValueSpec)
 				if !ok {
+					// const is always ValueSpec
 					continue
 				}
 
-				curType = ident.Name
+				// find out type of constant
+				// (or multiple constants: `const a, b Letter = "a", "b"`)
+
+				if vspec.Type == nil && curType == "" {
+					// no type - no interest
+					continue
+				}
+
+				if vspec.Type != nil {
+					ident, ok := vspec.Type.(*ast.Ident)
+					if !ok {
+						continue
+					}
+
+					curType = ident.Name
+				}
+
+				if curType != e.TypeName {
+					// not interested in this type
+					continue
+				}
+
+				// get the enum name!
+				for _, name := range vspec.Names {
+					e.Parsed.Names = append(e.Parsed.Names, name.Name)
+				}
+
+				if len(vspec.Names) > 1 {
+					//
+					curType = ""
+				}
 			}
 
-			if curType != e.TypeName {
-				// not interested in this type
-				continue
-			}
+			return false
+		default:
+			// we are interested only in constants that are declared on package level
+			return false
 
-			// get the enum name!
-			for _, name := range vspec.Names {
-				e.Parsed.Names = append(e.Parsed.Names, name.Name)
-			}
-
-			if len(vspec.Names) > 1 {
-				//
-				curType = ""
-			}
 		}
-
-		return false
 	})
 
 	return nil
