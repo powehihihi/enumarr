@@ -55,25 +55,18 @@ func (e *enumarr) parse(fileName string) error {
 	}
 
 	ast.Inspect(f, func(node ast.Node) bool {
-		switch node.(type) {
+		switch t := node.(type) {
 		case *ast.File:
-			file, ok := node.(*ast.File)
-			if !ok {
-				// unreachable
-				return false
-			}
-			e.Parsed.Pkg = file.Name.Name
+			e.Parsed.Pkg = t.Name.Name
 			return true
 		case *ast.GenDecl:
-			decl, ok := node.(*ast.GenDecl)
-			if !ok || decl.Tok != token.CONST {
-				// we only care about const declarations (-> return) on the package level
+			if t.Tok != token.CONST {
 				return true
 			}
 
 			curType := ""
 
-			for _, spec := range decl.Specs {
+			for _, spec := range t.Specs {
 				vspec, ok := spec.(*ast.ValueSpec)
 				if !ok {
 					// const is always ValueSpec
