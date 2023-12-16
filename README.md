@@ -30,7 +30,7 @@ const (
 	Renamed
 )
 ```
-you can generate this:
+you get this:
 ```go
 //git/status_array.go
 package git
