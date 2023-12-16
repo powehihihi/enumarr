@@ -35,7 +35,7 @@ func TestCalculateNames(t *testing.T) {
 
 		e.calculateNames()
 
-		require.Equal(t, "TestTypeArray", e.FuncName)
+		require.Equal(t, "TestTypeAll", e.FuncName)
 		require.Equal(t, "TestTypeArray", e.VarName)
 	})
 
@@ -50,7 +50,7 @@ func TestCalculateNames(t *testing.T) {
 
 		e.calculateNames()
 
-		require.Equal(t, "TestTypeArray", e.FuncName)
+		require.Equal(t, "TestTypeAll", e.FuncName)
 		require.Equal(t, "_TestTypeArray", e.VarName)
 	})
 }

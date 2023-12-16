@@ -1,12 +1,12 @@
 package {{ .Parsed.Pkg }}
 
-var {{ .VarName }} = []{{ .TypeName }}{
+var {{ .VarName }} = [...]{{ .TypeName }}{
   {{- range .Parsed.Names }}
   {{ . }},
   {{- end }}
 }
 {{ if .ExportFunc }}
-func ({{ .TypeName}}) {{ .FuncName }}() []{{ .TypeName }} {
+func {{ .FuncName }}() []{{ .TypeName }} {
   return {{ .VarName }}
 }
 {{- end }}

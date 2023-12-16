@@ -118,15 +118,15 @@ func (e *enumarr) parse(fileName string) error {
 }
 
 func (e *enumarr) calculateNames() {
-	exported := strings.ToUpper(e.TypeName[:1]) + e.TypeName[1:] + "Array"
+	exported := strings.ToUpper(e.TypeName[:1]) + e.TypeName[1:]
 
 	if e.ExportFunc {
 		// method is exported so no conflicts
-		e.FuncName = exported
+		e.FuncName = exported + "All"
 	}
 
 	if e.ExportVar {
-		e.VarName = exported
+		e.VarName = exported + "Array"
 	} else {
 		e.VarName = "_" + e.TypeName + "Array"
 	}
