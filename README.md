@@ -16,12 +16,14 @@ go generate ./...
 ## Example
 From this:
 ```go
+//git/status.go
 package git
-//go:generate go run github.com/powehihihi/enumarr@latest -type GitStatus
-type GitStatus int8
+
+//go:generate go run github.com/powehihihi/enumarr@latest -type Status
+type Status int8
 
 const (
-	Unmodified GitStatus = iota
+	Unmodified Status = iota
 	Modified
 	Added
 	Deleted
@@ -30,9 +32,10 @@ const (
 ```
 you can generate this:
 ```go
+//git/status_array.go
 package git
 
-var _GitStatusArray = [...]GitStatus{
+var _StatusArray = [...]Status{
 	Unmodified,
 	Modified,
 	Added,
@@ -40,8 +43,8 @@ var _GitStatusArray = [...]GitStatus{
 	Renamed,
 }
 
-func GitStatusAll() []GitStatus {
-	return _GitStatusArray[:]
+func StatusAll() []Status {
+	return _StatusArray[:]
 }
 ```
 
