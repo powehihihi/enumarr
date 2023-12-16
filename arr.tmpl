@@ -7,6 +7,6 @@ var {{ .VarName }} = [...]{{ .TypeName }}{
 }
 {{ if .ExportFunc }}
 func {{ .FuncName }}() []{{ .TypeName }} {
-  return {{ .VarName }}
+  return {{ .VarName }}[:]
 }
 {{- end }}
