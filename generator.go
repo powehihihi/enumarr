@@ -76,9 +76,9 @@ func (e *enumarr) parse(fileName string) error {
 				// find out type of constant
 				// (or multiple constants: `const a, b Letter = "a", "b"`)
 
-				if vspec.Type == nil && curType == "" {
-					// no type - no interest
-					continue
+				if vspec.Type == nil && len(vspec.Values) > 0 {
+					// prev decl's type is inferred only if value not specified
+					curType = ""
 				}
 
 				if vspec.Type != nil {
@@ -95,7 +95,7 @@ func (e *enumarr) parse(fileName string) error {
 					continue
 				}
 
-				// get the enum name!
+				// get the enum names!
 				for _, name := range vspec.Names {
 					e.Parsed.Names = append(e.Parsed.Names, name.Name)
 				}
