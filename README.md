@@ -5,7 +5,7 @@ Generates an array of your enums!
 ## Quick start
 Add go:generate directive in your file:
 ```go
-//go:generate go run github.com/powehihihi/enumarr@latest -type YourEnumType
+//go:generate go run github.com/powehihihi/enumarr@v1.0.0 -type YourEnumType
 type YourEnumTyp int
 ```
 And run:
