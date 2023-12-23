@@ -10,8 +10,6 @@ import (
 
 func TestCalculateNames(t *testing.T) {
 	t.Run("export only var, type is exported", func(t *testing.T) {
-		t.Parallel()
-
 		e := &enumarr{
 			TypeName:   "TestType",
 			ExportVar:  true,
@@ -25,8 +23,6 @@ func TestCalculateNames(t *testing.T) {
 	})
 
 	t.Run("export var and func, type is exported", func(t *testing.T) {
-		t.Parallel()
-
 		e := &enumarr{
 			TypeName:   "TestType",
 			ExportVar:  true,
@@ -40,8 +36,6 @@ func TestCalculateNames(t *testing.T) {
 	})
 
 	t.Run("export only func, type is exported", func(t *testing.T) {
-		t.Parallel()
-
 		e := &enumarr{
 			TypeName:   "TestType",
 			ExportVar:  false,
@@ -74,7 +68,6 @@ func PrepareTestFile(t *testing.T, data string) string {
 
 func TestParse(t *testing.T) {
 	t.Run("default configuration", func(t *testing.T) {
-		t.Parallel()
 		path := PrepareTestFile(t, `package defaultpkg
 
 type DefaultEnum int
@@ -98,7 +91,6 @@ const (
 	})
 
 	t.Run("string enu", func(t *testing.T) {
-		t.Parallel()
 		path := PrepareTestFile(t, `package stringpkg
 type StringEnum string
 
@@ -117,5 +109,57 @@ const (
 		require.Equal(t, "StringEnum", e.TypeName, "type")
 		require.Equal(t, "stringpkg", e.Parsed.Pkg, "package")
 		require.Equal(t, []string{"Enum1", "Enum2", "Enum3"}, e.Parsed.Names, "enum names")
+	})
+
+	t.Run("two const declarations", func(t *testing.T) {
+		path := PrepareTestFile(t, `package twopkg
+type Enum int
+
+const (
+  Enum1 Enum = iota
+  Enum2
+)
+
+const (
+  Enum3 Enum = iota + 2
+  Enum4
+)
+`)
+		e := &enumarr{
+			TypeName: "Enum",
+		}
+		err := e.parse(path)
+		require.NoError(t, err, "parse shouldn't return error")
+
+		require.Equal(t, "Enum", e.TypeName, "type")
+		require.Equal(t, "twopkg", e.Parsed.Pkg, "package")
+		require.Equal(t, []string{"Enum1", "Enum2", "Enum3", "Enum4"}, e.Parsed.Names, "enum names")
+	})
+
+	t.Run("enum declaration inside function", func(t *testing.T) {
+		path := PrepareTestFile(t, `package funcpkg
+type Enum int
+
+const (
+  Enum1 Enum = iota
+  Enum2
+)
+
+func gotcha() Enum {
+  // parser should ignore this declaration
+  const fakeConst Enum = 1
+
+  return fakeConst
+}
+`)
+		e := &enumarr{
+			TypeName: "Enum",
+		}
+		err := e.parse(path)
+		require.NoError(t, err, "parse shouldn't return error")
+
+		require.Equal(t, "Enum", e.TypeName, "type")
+		require.Equal(t, "funcpkg", e.Parsed.Pkg, "package")
+		require.Equal(t, []string{"Enum1", "Enum2"}, e.Parsed.Names, "enum names")
 	})
 }
